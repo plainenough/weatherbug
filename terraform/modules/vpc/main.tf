@@ -4,6 +4,8 @@ resource "aws_vpc" "public_vpc" {
   enable_dns_hostnames = true
   tags = {
     Name = "VPC-${var.region}-${var.environment_name}"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
 }
 
@@ -15,6 +17,8 @@ resource "aws_subnet" "public_subnets" {
   availability_zone = "${var.region}${var.azs[count.index]}"
   tags = {
     Name = "Public-${var.environment_name}-${var.region}-${var.azs[count.index]}"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
 }
 
@@ -26,6 +30,8 @@ resource "aws_subnet" "private_subnets" {
   availability_zone = "${var.region}${var.azs[count.index]}"
   tags = {
     Name = "Private-${var.environment_name}-${var.region}-${var.azs[count.index]}"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"    
   }
 }
 
@@ -35,6 +41,8 @@ resource "aws_eip" "nat_a" {
   vpc = true
   tags = {
     Name = "EIP for NAT Gateway AZ-a"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
 }
 
@@ -43,6 +51,8 @@ resource "aws_eip" "nat_b" {
   vpc = true
   tags = {
     Name = "EIP for NAT Gateway AZ-b"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
 }
 
@@ -51,14 +61,18 @@ resource "aws_eip" "nat_c" {
   vpc = true
   tags = {
     Name = "EIP for NAT Gateway AZ-c"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
 }
 
 
 resource "aws_internet_gateway" "public_gateway" {
- vpc_id = aws_vpc.public_vpc.id
- tags = {
-   Name = "Project VPC IG"
+  vpc_id = aws_vpc.public_vpc.id
+  tags = {
+    Name = "Project VPC IG"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
  }
 }
 
@@ -68,7 +82,9 @@ resource "aws_nat_gateway" "nat_1" {
   allocation_id = aws_eip.nat_a.id
   subnet_id     = aws_subnet.private_subnets[0].id  
   tags = {
-    Name = "NAT Gateway"
+    Name = "NAT Gateway 1"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
   depends_on = [aws_internet_gateway.public_gateway, aws_eip.nat_a]
 }
@@ -78,7 +94,9 @@ resource "aws_nat_gateway" "nat_2" {
   allocation_id = aws_eip.nat_b.id
   subnet_id     = aws_subnet.private_subnets[1].id  
   tags = {
-    Name = "NAT Gateway"
+    Name = "NAT Gateway 2"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
   depends_on = [aws_internet_gateway.public_gateway, aws_eip.nat_b]
 }
@@ -88,7 +106,9 @@ resource "aws_nat_gateway" "nat_3" {
   allocation_id = aws_eip.nat_3.id
   subnet_id     = aws_subnet.private_subnets[2].id  
   tags = {
-    Name = "NAT Gateway"
+    Name = "NAT Gateway 3"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
   depends_on = [aws_internet_gateway.public_gateway, aws_eip.nat_c]
 }
@@ -100,8 +120,10 @@ resource "aws_route_table" "public_route_table" {
    cidr_block = "0.0.0.0/0"
    gateway_id = aws_internet_gateway.public_gateway.id
  }
- tags = {
-   Name = "Public Route Table"
+  tags = {
+    Name = "Public Route Table"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
  } 
  depends_on = [aws_internet_gateway.public_gateway]
 }
@@ -120,6 +142,8 @@ resource "aws_route_table" "private" {
   }
   tags = {
     Name = "Private-Subnet-RouteTable-${count.index}"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
   }
   depends_on = [      aws_nat_gateway.nat_1,
       aws_nat_gateway.nat_2,
