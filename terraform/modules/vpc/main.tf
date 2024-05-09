@@ -156,3 +156,50 @@ resource "aws_route_table_association" "private" {
   subnet_id      = aws_subnet.private_subnets[count.index].id
   route_table_id = aws_route_table.private[count.index].id
 }
+
+
+resource "aws_security_group" "external_web_traffic_sg" {
+  name        = "external_web_traffic_sg"
+  description = "Security group for allowing web traffic"
+  vpc_id      = aws_vpc.public_vpc.id
+
+  tags = {
+    Name = "ExternalWebTrafficSecurityGroup"
+    Project     = "weatherbug"
+    ManagedBy   = "terraform"
+  }
+  depends_on = [ aws_vpc.public_vpc ]
+}
+
+
+resource "aws_security_group_rule" "allow_http" {
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]  # Allows traffic from any IP address
+  security_group_id = aws_security_group.external_web_traffic_sg.id
+}
+
+
+resource "aws_security_group_rule" "allow_https" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]  # Allows traffic from any IP address
+  security_group_id = aws_security_group.external_web_traffic_sg.id
+}
+
+
+resource "aws_security_group_rule" "allow_outbound_traffic" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]  # Allows traffic to any IP address
+  security_group_id = aws_security_group.external_web_traffic_sg.id
+}
+
+
+

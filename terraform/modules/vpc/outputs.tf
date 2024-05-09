@@ -60,3 +60,9 @@ output "nat_eips" {
   }
   description = "The public IPs of the NAT Gateways"
 }
+
+
+output "web_traffic_security_group_id" {
+  value       = aws_security_group.external_web_traffic_sg.id
+  description = "The ID of the security group that allows web traffic"
+}
