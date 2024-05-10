@@ -11,9 +11,9 @@ resource "aws_vpc" "public_vpc" {
 
 
 resource "aws_subnet" "public_subnets" {
-  count      = length(var.public_subnets_cidr)
+  count      = length(var.public_subnet_cidrs)
   vpc_id     = aws_vpc.public_vpc.id
-  cidr_block = var.public_subnets_cidr[count.index]
+  cidr_block = var.public_subnet_cidrs[count.index]
   availability_zone = "${var.region}${var.azs[count.index]}"
   tags = {
     Name = "Public-${var.environment_name}-${var.region}-${var.azs[count.index]}"
@@ -24,9 +24,9 @@ resource "aws_subnet" "public_subnets" {
 
 
 resource "aws_subnet" "private_subnets" {
-  count      = length(var.private_subnets_cidr)
+  count      = length(var.private_subnet_cidrs)
   vpc_id     = aws_vpc.public_vpc.id
-  cidr_block = var.private_subnets_cidr[count.index]
+  cidr_block = var.private_subnet_cidrs[count.index]
   availability_zone = "${var.region}${var.azs[count.index]}"
   tags = {
     Name = "Private-${var.environment_name}-${var.region}-${var.azs[count.index]}"
@@ -238,3 +238,12 @@ resource "aws_security_group_rule" "eks_node_egress_self" {
   description       = "Allow node to communicate with itself"
 }
 
+
+resource "aws_security_group_rule" "efs_access" {
+  type              = "egress"
+  from_port         = 2049
+  to_port           = 2049
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks_node_sg.id
+  cidr_blocks       = [var.private_subnet_cidrs] 
+}
