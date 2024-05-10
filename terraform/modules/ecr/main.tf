@@ -7,6 +7,6 @@ resource "aws_ecr_repository" "ecr_repo" {
   tags = {
     Environment = "${var.environment_name}"
     Project     = "weatherbug"
-    ManagedBy = "terraform"
+    ManagedBy   = "terraform"
   }
 }
