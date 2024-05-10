@@ -228,7 +228,7 @@ resource "aws_security_group_rule" "eks_node_ingress_self" {
 }
 
 
-resource "aws_security_group_rule" "eks_node_ingress_self" {
+resource "aws_security_group_rule" "eks_node_egress_self" {
   type              = "egress"
   from_port         = 0
   to_port           = 0
