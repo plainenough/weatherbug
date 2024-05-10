@@ -177,8 +177,9 @@ resource "aws_security_group_rule" "allow_http" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]  # Allows traffic from any IP address
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.external_web_traffic_sg.id
+  description       = "Allow inboud HTTP traffic"
 }
 
 
@@ -189,6 +190,7 @@ resource "aws_security_group_rule" "allow_https" {
   protocol          = "tcp"
   cidr_blocks       = ["0.0.0.0/0"]  # Allows traffic from any IP address
   security_group_id = aws_security_group.external_web_traffic_sg.id
+  description       = "Allow inbound HTTPS traffic"
 }
 
 
@@ -197,9 +199,42 @@ resource "aws_security_group_rule" "allow_outbound_traffic" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]  # Allows traffic to any IP address
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.external_web_traffic_sg.id
+  description       = "Allow all outbound traffic"
 }
 
 
+resource "aws_security_group" "eks_node_sg" {
+  name        = "eks-node-sg"
+  description = "Security group for EKS worker nodes"
+  vpc_id      = aws_vpc.public_vpc.id
+
+  tags = {
+    Name = "eks-worker-node-security-group"
+  }
+  depends_on = [ aws_vpc.public_vpc ]
+}
+
+
+resource "aws_security_group_rule" "eks_node_ingress_self" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.eks_node_sg.id
+  self              = true
+  description       = "Allow node to communicate with itself"
+}
+
+
+resource "aws_security_group_rule" "eks_node_ingress_self" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.eks_node_sg.id
+  self              = true
+  description       = "Allow node to communicate with itself"
+}
 
