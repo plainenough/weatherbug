@@ -18,9 +18,9 @@ resource "aws_iam_role" "eks_cluster_role" {
     ]
   })
   tags = {
-    Name        = "eks-cluster-role"
-    Project     = "weatherbug"
-    ManagedBy   = "terraform"
+    Name      = "eks-cluster-role"
+    Project   = "weatherbug"
+    ManagedBy = "terraform"
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 
 resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
   role       = aws_iam_role.eks_cluster_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"  # This policy is required to allow EKS to manage network resources for the cluster
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController" # This policy is required to allow EKS to manage network resources for the cluster
 }
 
 
@@ -52,9 +52,9 @@ resource "aws_iam_role" "eks_node_role" {
     ]
   })
   tags = {
-    Name        = "eks-node-role"
-    Project     = "weatherbug"
-    ManagedBy   = "terraform"
+    Name      = "eks-node-role"
+    Project   = "weatherbug"
+    ManagedBy = "terraform"
   }
 }
 
@@ -83,9 +83,9 @@ resource "aws_iam_policy" "ecr_access" {
     ]
   })
   tags = {
-    Name        = "EcrEksAccess"
-    Project     = "weatherbug"
-    ManagedBy   = "terraform"
+    Name      = "EcrEksAccess"
+    Project   = "weatherbug"
+    ManagedBy = "terraform"
   }
 }
 
