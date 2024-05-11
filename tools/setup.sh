@@ -11,7 +11,6 @@ echo "Update and install terraform and other tools...."
 sudo apt update && sudo apt install -y terraform curl unzip
 
 echo "Install AWScliv2"
-sudo apt-get install -y unzip curl
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip -q awscliv2.zip
 sudo ./aws/install --update
