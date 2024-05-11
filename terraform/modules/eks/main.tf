@@ -3,12 +3,12 @@ data "aws_caller_identity" "current" {
 
 module "iam" {
   source = "../../modules/iam"
-  # Pass necessary variables if there are any
+  environment_name = var.environment_name
 }
 
 module "vpc" {
   source = "../../modules/vpc"
-  # Pass necessary variables if there are any
+  environment_name = var.environment_name
 }
 
 resource "aws_kms_key" "eks_encryption" {

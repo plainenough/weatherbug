@@ -1,6 +1,6 @@
 module "ecr" {
   source = "../../modules/ecr"
-  # Pass necessary variables if there are any
+  environment_name = var.environment_name
 }
 
 resource "aws_iam_role" "eks_cluster_role" {
