@@ -1,3 +1,8 @@
+module "ecr" {
+  source = "../../modules/ecr"
+  # Pass necessary variables if there are any
+}
+
 resource "aws_iam_role" "eks_cluster_role" {
   name = "eks-cluster-role"
   assume_role_policy = jsonencode({
@@ -73,7 +78,7 @@ resource "aws_iam_policy" "ecr_access" {
           "ecr:DescribeRepositories",
           "ecr:ListImages",
         ],
-        Resource = module.ecr.ecr_repo.arn
+        Resource = module.ecr.ecr_repository_arn
       }
     ]
   })

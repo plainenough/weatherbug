@@ -1,6 +1,15 @@
 data "aws_caller_identity" "current" {
 }
 
+module "iam" {
+  source = "../../modules/iam"
+  # Pass necessary variables if there are any
+}
+
+module "vpc" {
+  source = "../../modules/vpc"
+  # Pass necessary variables if there are any
+}
 
 resource "aws_kms_key" "eks_encryption" {
   description = "Key for encrypting Kubernetes Secrets in EKS"
@@ -44,7 +53,7 @@ resource "aws_eks_cluster" "main" {
   role_arn = module.iam.eks_cluster_role_arn
   version  = "1.29"
   vpc_config {
-    subnet_ids         = module.vpc.private_subnets
+    subnet_ids         = module.vpc.private_subnet_ids
     security_group_ids = [ module.vpc.eks_node_sg ]
     endpoint_private_access = false
     endpoint_public_access  = true
@@ -72,7 +81,7 @@ resource "aws_eks_node_group" "simple_node_group" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "simple-node-group"
   node_role_arn   = module.iam.eks_node_role_arn
-  subnet_ids      = module.vpc.private_subnets
+  subnet_ids      = module.vpc.private_subnet_ids
   scaling_config {
     desired_size = 3
     min_size     = 1
