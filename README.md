@@ -3,10 +3,10 @@
 
 
 ## Pre-installation
-- Create iam user 'devops' in aws account and generation access key and secret. 
+- Create iam user 'devops' in aws account and generate a access key and secret. 
 - Create bucket for terraform files to be published. 
 - Create keypair 'eks-custom-key' in the correct region.
-- Initialize Dynodb 
+- Initialize Dynamodb 
     Example using AWS CLI:
 
     
