@@ -4,20 +4,20 @@ provider "aws" {
 
 
 module "ecr" {
-  source    = "../../modules/ecr"
+  source           = "../../modules/ecr"
   environment_name = "prod"
 }
 
 
 module "iam" {
-  source           = "../../modules/iam"
+  source = "../../modules/iam"
 }
 
 
 module "vpc" {
-  source    = "../../modules/vpc"
+  source           = "../../modules/vpc"
   environment_name = "prod"
-  region = "us-east-2"
+  region           = "us-east-2"
 
 }
 
@@ -25,6 +25,6 @@ module "vpc" {
 module "eks" {
   source           = "../../modules/eks"
   environment_name = "prod"
-  region = "us-east-2"
+  region           = "us-east-2"
 }
 
