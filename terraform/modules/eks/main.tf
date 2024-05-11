@@ -1,3 +1,7 @@
+data "aws_caller_identity" "current" {
+}
+
+
 resource "aws_kms_key" "eks_encryption" {
   description = "Key for encrypting Kubernetes Secrets in EKS"
   policy = jsonencode({
@@ -29,14 +33,14 @@ resource "aws_kms_key" "eks_encryption" {
   })
   tags = {
     Name        = "EnvelopeEncryptionKey"
-    Environment = "${environment_name}"
+    Environment = "${var.environment_name}"
     Project     = "weatherbug"
     ManagedBy   = "terraform"
   }
 }
 
 resource "aws_eks_cluster" "main" {
-  name     = "${region}-eks-${environment_name}"
+  name     = "${var.region}-eks-${var.environment_name}"
   role_arn = module.iam.eks_cluster_role_arn
   version  = "1.29"
   vpc_config {
@@ -56,8 +60,8 @@ resource "aws_eks_cluster" "main" {
     module.iam.eks_vpc_resource_controller,
   ]
   tags = {
-    Name        = "${region}-eks-${environment_name}"
-    Environment = "${environment_name}"
+    Name        = "${var.region}-eks-${var.environment_name}"
+    Environment = "${var.environment_name}"
     Project     = "weatherbug"
     ManagedBy   = "terraform"
   }
@@ -79,7 +83,7 @@ resource "aws_eks_node_group" "simple_node_group" {
   disk_size = 20
   tags = {
     Name        = "EKS Simple Node Group"
-    Environment = "${environment_name}"
+    Environment = "${var.environment_name}"
     Project     = "weatherbug"
     ManagedBy   = "terraform"
   }

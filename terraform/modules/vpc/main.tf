@@ -38,7 +38,7 @@ resource "aws_subnet" "private_subnets" {
 
 # This assumes that subnets order is maintained throughout creation.
 resource "aws_eip" "nat_a" {
-  vpc = true
+  domain = "vpc"
   tags = {
     Name = "EIP for NAT Gateway AZ-a"
     Project     = "weatherbug"
@@ -48,7 +48,7 @@ resource "aws_eip" "nat_a" {
 
 
 resource "aws_eip" "nat_b" {
-  vpc = true
+  domain = "vpc"
   tags = {
     Name = "EIP for NAT Gateway AZ-b"
     Project     = "weatherbug"
@@ -58,7 +58,7 @@ resource "aws_eip" "nat_b" {
 
 
 resource "aws_eip" "nat_c" {
-  vpc = true
+  domain = "vpc"
   tags = {
     Name = "EIP for NAT Gateway AZ-c"
     Project     = "weatherbug"
@@ -103,7 +103,7 @@ resource "aws_nat_gateway" "nat_2" {
 
 
 resource "aws_nat_gateway" "nat_3" {
-  allocation_id = aws_eip.nat_3.id
+  allocation_id = aws_eip.nat_c.id
   subnet_id     = aws_subnet.private_subnets[2].id  
   tags = {
     Name = "NAT Gateway 3"
@@ -245,5 +245,5 @@ resource "aws_security_group_rule" "efs_access" {
   to_port           = 2049
   protocol          = "tcp"
   security_group_id = aws_security_group.eks_node_sg.id
-  cidr_blocks       = [var.private_subnet_cidrs] 
+  cidr_blocks       = var.private_subnet_cidrs 
 }

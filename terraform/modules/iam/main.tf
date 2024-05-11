@@ -73,7 +73,7 @@ resource "aws_iam_policy" "ecr_access" {
           "ecr:DescribeRepositories",
           "ecr:ListImages",
         ],
-        Resource = aws_ecr_repository.ecr_repo.arn
+        Resource = module.ecr.ecr_repo.arn
       }
     ]
   })
