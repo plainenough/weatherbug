@@ -188,7 +188,7 @@ resource "aws_security_group_rule" "allow_https" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"] # Allows traffic from any IP address
+  cidr_blocks       = ["0.0.0.0/0"]
   security_group_id = aws_security_group.external_web_traffic_sg.id
   description       = "Allow inbound HTTPS traffic"
 }
@@ -223,6 +223,7 @@ resource "aws_security_group_rule" "eks_node_ingress_self" {
   to_port           = 0
   protocol          = "-1"
   security_group_id = aws_security_group.eks_node_sg.id
+  source_security_group_id = aws_security_group.eks_node_sg.id
   self              = true
   description       = "Allow node to communicate with itself"
 }
@@ -234,6 +235,7 @@ resource "aws_security_group_rule" "eks_node_egress_self" {
   to_port           = 0
   protocol          = "-1"
   security_group_id = aws_security_group.eks_node_sg.id
+  source_security_group_id = aws_security_group.eks_node_sg.id
   self              = true
   description       = "Allow node to communicate with itself"
 }
@@ -246,4 +248,29 @@ resource "aws_security_group_rule" "efs_access" {
   protocol          = "tcp"
   security_group_id = aws_security_group.eks_node_sg.id
   cidr_blocks       = var.private_subnet_cidrs
+}
+
+
+resource "aws_security_group" "eks_control_plane_sg" {
+  name        = "eks-control-plane-sg"
+  description = "Security group for EKS control plane"
+  vpc_id      = module.vpc.vpc_id
+}
+
+resource "aws_security_group_rule" "eks_control_plane_ingress" {
+  type              = "ingress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  security_group_id = aws_security_group.eks_control_plane_sg.id
+  source_security_group_id = aws_security_group.eks_node_sg.id  # Allowing traffic from the worker nodes
+}
+
+resource "aws_security_group_rule" "eks_control_plane_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.eks_control_plane_sg.id
+  cidr_blocks       = ["0.0.0.0/0"]  # Modify as necessary for your environment
 }
