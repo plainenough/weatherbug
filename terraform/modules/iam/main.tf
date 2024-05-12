@@ -102,6 +102,11 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
 }
 
 
+resource "aws_iam_role_policy_attachment" "eks_ssm_policy" {
+  role       = aws_iam_role.eks_node_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
+
 resource "aws_iam_role_policy_attachment" "ecr_push_pull" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = aws_iam_policy.ecr_access.arn
