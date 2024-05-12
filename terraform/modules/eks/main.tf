@@ -98,6 +98,6 @@ resource "aws_eks_node_group" "simple_node_group" {
   }
   remote_access {
     ec2_ssh_key               = "eks-custom-key"
-    source_security_group_ids = [module.vpc.eks_node_sg]
+    source_security_group_ids = [module.vpc.eks_node_sg_id]
   }
 }

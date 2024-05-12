@@ -60,7 +60,7 @@ output "web_traffic_security_group_id" {
 }
 
 
-output "eks_node_sg" {
+output "eks_node_sg_id" {
   value       = aws_security_group.eks_node_sg.id
   description = "The ID of the security group that allows web traffic"
 }
