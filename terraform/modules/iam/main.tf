@@ -1,3 +1,8 @@
+module "ecr" {
+  source = "../../modules/ecr"
+  environment_name = var.environment_name
+}
+
 resource "aws_iam_role" "eks_cluster_role" {
   name = "eks-cluster-role"
   assume_role_policy = jsonencode({
@@ -13,9 +18,9 @@ resource "aws_iam_role" "eks_cluster_role" {
     ]
   })
   tags = {
-    Name        = "eks-cluster-role"
-    Project     = "weatherbug"
-    ManagedBy   = "terraform"
+    Name      = "eks-cluster-role"
+    Project   = "weatherbug"
+    ManagedBy = "terraform"
   }
 }
 
@@ -28,7 +33,7 @@ resource "aws_iam_role_policy_attachment" "eks_cluster_policy" {
 
 resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
   role       = aws_iam_role.eks_cluster_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController"  # This policy is required to allow EKS to manage network resources for the cluster
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSVPCResourceController" # This policy is required to allow EKS to manage network resources for the cluster
 }
 
 
@@ -47,9 +52,9 @@ resource "aws_iam_role" "eks_node_role" {
     ]
   })
   tags = {
-    Name        = "eks-node-role"
-    Project     = "weatherbug"
-    ManagedBy   = "terraform"
+    Name      = "eks-node-role"
+    Project   = "weatherbug"
+    ManagedBy = "terraform"
   }
 }
 
@@ -73,14 +78,14 @@ resource "aws_iam_policy" "ecr_access" {
           "ecr:DescribeRepositories",
           "ecr:ListImages",
         ],
-        Resource = aws_ecr_repository.ecr_repo.arn
+        Resource = module.ecr.ecr_repository_arn
       }
     ]
   })
   tags = {
-    Name        = "EcrEksAccess"
-    Project     = "weatherbug"
-    ManagedBy   = "terraform"
+    Name      = "EcrEksAccess"
+    Project   = "weatherbug"
+    ManagedBy = "terraform"
   }
 }
 
@@ -96,6 +101,11 @@ resource "aws_iam_role_policy_attachment" "eks_cni_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
+
+resource "aws_iam_role_policy_attachment" "eks_ssm_policy" {
+  role       = aws_iam_role.eks_node_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+}
 
 resource "aws_iam_role_policy_attachment" "ecr_push_pull" {
   role       = aws_iam_role.eks_node_role.name
