@@ -54,8 +54,8 @@ resource "aws_eks_cluster" "main" {
   version  = "1.29"
   vpc_config {
     subnet_ids              = module.vpc.private_subnet_ids
-    security_group_ids      = [module.vpc.eks_node_sg]
-    endpoint_private_access = false
+    security_group_ids      = [module.vpc.eks_node_sg_id]
+    endpoint_private_access = true
     endpoint_public_access  = true
   }
   encryption_config {
@@ -95,9 +95,5 @@ resource "aws_eks_node_group" "simple_node_group" {
     Environment = "${var.environment_name}"
     Project     = "weatherbug"
     ManagedBy   = "terraform"
-  }
-  remote_access {
-    ec2_ssh_key               = "eks-custom-key"
-    source_security_group_ids = [module.vpc.eks_node_sg_id]
   }
 }

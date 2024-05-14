@@ -223,7 +223,6 @@ resource "aws_security_group_rule" "eks_node_ingress_self" {
   to_port           = 0
   protocol          = "-1"
   security_group_id = aws_security_group.eks_node_sg.id
-  source_security_group_id = aws_security_group.eks_node_sg.id
   self              = true
   description       = "Allow node to communicate with itself"
 }
@@ -235,7 +234,6 @@ resource "aws_security_group_rule" "eks_node_egress_self" {
   to_port           = 0
   protocol          = "-1"
   security_group_id = aws_security_group.eks_node_sg.id
-  source_security_group_id = aws_security_group.eks_node_sg.id
   self              = true
   description       = "Allow node to communicate with itself"
 }
@@ -254,7 +252,7 @@ resource "aws_security_group_rule" "efs_access" {
 resource "aws_security_group" "eks_control_plane_sg" {
   name        = "eks-control-plane-sg"
   description = "Security group for EKS control plane"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.public_vpc.id
 }
 
 resource "aws_security_group_rule" "eks_control_plane_ingress" {
