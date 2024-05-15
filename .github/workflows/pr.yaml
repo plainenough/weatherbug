@@ -25,7 +25,7 @@ jobs:
     - name: Validate Terraform configurations
       shell: bash
       run: |
-        for dir in ./terraform/*; do
+        for dir in `ls -R ./terraform/`; do
           if [ -d "$dir" ]; then
             echo "Validating $dir"
             terraform -chdir="$dir" init -backend=false
