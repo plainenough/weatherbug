@@ -76,6 +76,7 @@ resource "aws_eks_cluster" "main" {
   }
 }
 
+
 resource "aws_eks_node_group" "simple_node_group" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "simple-node-group"
@@ -85,12 +86,6 @@ resource "aws_eks_node_group" "simple_node_group" {
     desired_size = 3
     min_size     = 1
     max_size     = 5
-  }
-  instance_types = ["t2.micro"]
-  ami_type       = "AL2_x86_64"
-  disk_size      = 20
-  remote_access {
-    ec2_ssh_key = "eks-custom-key"
   }
   tags = {
     Name        = "EKS Simple Node Group"
@@ -138,6 +133,16 @@ EOF
       ManagedBy   = "terraform"
     }
   }
+}
+
+resource "aws_eks_addon" "kubeproxy_addon" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "kube-proxy"
+}
+
+resource "aws_eks_addon" "cni_addon" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "vpc-cni"
 }
 
 data "aws_ami" "eks_worker" {
