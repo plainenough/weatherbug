@@ -13,7 +13,6 @@ resource "aws_route_table" "public_route_table" {
     Project   = "weatherbug"
     ManagedBy = "terraform"
   }
-  depends_on = [aws_internet_gateway.public_gateway]
 }
 
 resource "aws_route_table_association" "public" {
@@ -43,5 +42,5 @@ resource "aws_route_table" "private" {
 resource "aws_route_table_association" "private-subnets" {
   count          = 3
   subnet_id      = var.private_subnet_ids[count.index]
-  route_table_id = aws_route_table.private[count.index]
+  route_table_id = aws_route_table.private[count.index].id  
 }

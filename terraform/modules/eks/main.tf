@@ -8,6 +8,7 @@ module "iam" {
 
 module "vpc" {
   source = "../../modules/vpc"
+  region = var.region
   environment_name = var.environment_name
 }
 

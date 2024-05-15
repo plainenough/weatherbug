@@ -92,6 +92,7 @@ module "security-groups" {
   source = "./security-groups"
   environment_name = var.environment_name
   public_vpc_id = aws_vpc.public_vpc.id
+  private_subnet_cidrs = var.private_subnet_cidrs
   depends_on = [aws_vpc.public_vpc]
 }
 
@@ -106,15 +107,19 @@ module "subnets" {
   depends_on = [aws_vpc.public_vpc]
 }
 
+
 module "route-tables" {
   source = "./route-tables"
   environment_name = var.environment_name
   public_vpc_id = aws_vpc.public_vpc.id
-  nat_gateway_ids = [aws_nat_gateway.nat_gateways[0].id, aws_nat_gateway.nat_gateways[1].id, aws_nat_gateway.nat_gateways[2]]
-  region            = var.region
+  nat_gateway_ids = [
+    aws_nat_gateway.nat_gateways["nat_1"].id,
+    aws_nat_gateway.nat_gateways["nat_2"].id,
+    aws_nat_gateway.nat_gateways["nat_3"].id
+  ]
   vpc_cidr_block = var.vpc_cidr_block
-  public_gateway_id = aws_internet_gateway.public_gateway
+  public_gateway_id = aws_internet_gateway.public_gateway.id
   public_subnet_ids = module.subnets.public_subnet_ids
   private_subnet_ids = module.subnets.private_subnet_ids
-  depends_on = [aws_nat_gateway.nat_gatways]
+  depends_on = [aws_nat_gateway.nat_gateways]
 }
