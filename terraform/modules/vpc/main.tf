@@ -51,89 +51,40 @@ resource "aws_internet_gateway" "public_gateway" {
   }
 }
 
-# This assumes that subnets order is maintained throughout creation.
-resource "aws_nat_gateway" "nat_1" {
-  allocation_id = aws_eip.nat_a.id
-  subnet_id     = aws_subnet.public_subnets[0].id
+
+locals {
+  nat_gateways = {
+    nat_1 = {
+      allocation_id = aws_eip.nat_a.id
+      subnet_id     = module.subnets.public_subnet_ids[0]
+      name          = "NAT Gateway 1"
+    }
+    nat_2 = {
+      allocation_id = aws_eip.nat_b.id
+      subnet_id     = module.subnets.public_subnet_ids[1]
+      name          = "NAT Gateway 2"
+    }
+    nat_3 = {
+      allocation_id = aws_eip.nat_c.id
+      subnet_id     = module.subnets.public_subnet_ids[2]
+      name          = "NAT Gateway 3"
+    }
+  }
+}
+
+
+resource "aws_nat_gateway" "nat_gateways" {
+  for_each       = local.nat_gateways
+  allocation_id  = each.value.allocation_id
+  subnet_id      = each.value.subnet_id
+
   tags = {
-    Name      = "NAT Gateway 1"
+    Name      = each.value.name
     Project   = "weatherbug"
     ManagedBy = "terraform"
   }
-  depends_on = [aws_internet_gateway.public_gateway, aws_eip.nat_a]
-}
 
-
-resource "aws_nat_gateway" "nat_2" {
-  allocation_id = aws_eip.nat_b.id
-  subnet_id     = aws_subnet.public_subnets[1].id
-  tags = {
-    Name      = "NAT Gateway 2"
-    Project   = "weatherbug"
-    ManagedBy = "terraform"
-  }
-  depends_on = [aws_internet_gateway.public_gateway, aws_eip.nat_b]
-}
-
-
-resource "aws_nat_gateway" "nat_3" {
-  allocation_id = aws_eip.nat_c.id
-  subnet_id     = aws_subnet.public_subnets[2].id
-  tags = {
-    Name      = "NAT Gateway 3"
-    Project   = "weatherbug"
-    ManagedBy = "terraform"
-  }
-  depends_on = [aws_internet_gateway.public_gateway, aws_eip.nat_c]
-}
-
-
-resource "aws_route_table" "public_route_table" {
-  vpc_id = aws_vpc.public_vpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.public_gateway.id
-  }
-  tags = {
-    Name      = "Public Route Table"
-    Project   = "weatherbug"
-    ManagedBy = "terraform"
-  }
-  depends_on = [aws_internet_gateway.public_gateway]
-}
-
-resource "aws_route_table_association" "public" {
-  count          = 3
-  subnet_id      = aws_subnet.public_subnets[count.index].id
-  route_table_id = aws_route_table.public_route_table.id
-}
-
-resource "aws_route_table" "private" {
-  count  = 3
-  vpc_id = aws_vpc.public_vpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    nat_gateway_id = element([
-      aws_nat_gateway.nat_1.id,
-      aws_nat_gateway.nat_2.id,
-      aws_nat_gateway.nat_3.id
-    ], count.index)
-  }
-  tags = {
-    Name      = "Private-Subnet-RouteTable-${count.index}"
-    Project   = "weatherbug"
-    ManagedBy = "terraform"
-  }
-  depends_on = [aws_nat_gateway.nat_1,
-    aws_nat_gateway.nat_2,
-  aws_nat_gateway.nat_3]
-}
-
-
-resource "aws_route_table_association" "private" {
-  count          = 3
-  subnet_id      = aws_subnet.private_subnets[count.index].id
-  route_table_id = aws_route_table.private[count.index].id
+  depends_on = [aws_internet_gateway.public_gateway, aws_eip.nat_a, aws_eip.nat_b, aws_eip.nat_c, module.subnets]
 }
 
 
@@ -153,4 +104,17 @@ module "subnets" {
   public_subnet_cidrs = var.public_subnet_cidrs
   private_subnet_cidrs = var.private_subnet_cidrs
   depends_on = [aws_vpc.public_vpc]
+}
+
+module "route-tables" {
+  source = "./route-tables"
+  environment_name = var.environment_name
+  public_vpc_id = aws_vpc.public_vpc.id
+  nat_gateway_ids = [aws_nat_gateway.nat_gateways[0].id, aws_nat_gateway.nat_gateways[1].id, aws_nat_gateway.nat_gateways[2]]
+  region            = var.region
+  vpc_cidr_block = var.vpc_cidr_block
+  public_gateway_id = aws_internet_gateway.public_gateway
+  public_subnet_ids = module.subnets.public_subnet_ids
+  private_subnet_ids = module.subnets.private_subnet_ids
+  depends_on = [aws_nat_gateway.nat_gatways]
 }
