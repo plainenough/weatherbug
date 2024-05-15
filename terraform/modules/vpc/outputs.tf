@@ -52,3 +52,8 @@ output "eks_node_sg_id" {
   value       = module.security-groups.eks_node_sg_id
   description = "The ID of the security group that allows web traffic"
 }
+
+output "private_sg_id" {
+  value = module.security-groups.private_sg_id
+  description = "private security group"
+}

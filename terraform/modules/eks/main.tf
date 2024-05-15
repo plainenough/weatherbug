@@ -121,9 +121,9 @@ EOF
     }
   }
   network_interfaces {
-    associate_public_ip_address = true
+    associate_public_ip_address = false
     delete_on_termination       = true
-    security_groups             = [module.vpc.eks_node_sg_id]
+    security_groups             = [module.vpc.eks_node_sg_id, module.vpc.private_sg_id]
   }
   tag_specifications {
     resource_type = "instance"
