@@ -242,6 +242,14 @@ resource "aws_security_group_rule" "eks_node_egress_self" {
   description       = "Allow node to communicate with itself"
 }
 
+resource "aws_security_group_rule" "public_sg_access_ingress" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.eks_node_sg.id
+  source_security_group_id = aws_security_group.public_sg.id
+}
 
 resource "aws_security_group_rule" "efs_access" {
   type              = "egress"
@@ -274,5 +282,36 @@ resource "aws_security_group_rule" "eks_control_plane_egress" {
   to_port           = 0
   protocol          = "-1"
   security_group_id = aws_security_group.eks_control_plane_sg.id
-  cidr_blocks       = ["0.0.0.0/0"]  # Modify as necessary for your environment
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group" "public_sg" {
+  name        = "public_sg"
+  description = "Security group for allowing traffic inside public subnets"
+  vpc_id      = aws_vpc.public_vpc.id
+
+  tags = {
+    Name      = "PublicSubnetSecurityGroup"
+    Project   = "weatherbug"
+    ManagedBy = "terraform"
+  }
+  depends_on = [aws_vpc.public_vpc]
+}
+
+resource "aws_security_group_rule" "public_sg_ingress" {
+  type              = "ingress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.public_sg.id
+  source_security_group_id = aws_security_group.eks_node_sg.id
+}
+
+resource "aws_security_group_rule" "public_sg_egress" {
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  security_group_id = aws_security_group.public_sg.id
+  cidr_blocks       = ["0.0.0.0/0"] 
 }
