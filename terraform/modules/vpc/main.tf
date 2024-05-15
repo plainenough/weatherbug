@@ -76,11 +76,10 @@ resource "aws_internet_gateway" "public_gateway" {
   }
 }
 
-
 # This assumes that subnets order is maintained throughout creation.
 resource "aws_nat_gateway" "nat_1" {
   allocation_id = aws_eip.nat_a.id
-  subnet_id     = aws_subnet.private_subnets[0].id
+  subnet_id     = aws_subnet.public_subnets[0].id
   tags = {
     Name      = "NAT Gateway 1"
     Project   = "weatherbug"
@@ -92,7 +91,7 @@ resource "aws_nat_gateway" "nat_1" {
 
 resource "aws_nat_gateway" "nat_2" {
   allocation_id = aws_eip.nat_b.id
-  subnet_id     = aws_subnet.private_subnets[1].id
+  subnet_id     = aws_subnet.public_subnets[1].id
   tags = {
     Name      = "NAT Gateway 2"
     Project   = "weatherbug"
@@ -104,7 +103,7 @@ resource "aws_nat_gateway" "nat_2" {
 
 resource "aws_nat_gateway" "nat_3" {
   allocation_id = aws_eip.nat_c.id
-  subnet_id     = aws_subnet.private_subnets[2].id
+  subnet_id     = aws_subnet.public_subnets[2].id
   tags = {
     Name      = "NAT Gateway 3"
     Project   = "weatherbug"
@@ -128,6 +127,11 @@ resource "aws_route_table" "public_route_table" {
   depends_on = [aws_internet_gateway.public_gateway]
 }
 
+resource "aws_route_table_association" "public" {
+  count          = 3
+  subnet_id      = aws_subnet.public_subnets[count.index].id
+  route_table_id = aws_route_table.public_route_table.id
+}
 
 resource "aws_route_table" "private" {
   count  = 3
