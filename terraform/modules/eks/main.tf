@@ -76,7 +76,6 @@ resource "aws_eks_cluster" "main" {
   }
 }
 
-
 resource "aws_eks_node_group" "simple_node_group" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "simple-node-group"
@@ -87,13 +86,69 @@ resource "aws_eks_node_group" "simple_node_group" {
     min_size     = 1
     max_size     = 5
   }
-  instance_types = ["t3.small"]
+  instance_types = ["t2.micro"]
   ami_type       = "AL2_x86_64"
   disk_size      = 20
+  remote_access {
+    ec2_ssh_key = "eks-custom-key"
+  }
   tags = {
     Name        = "EKS Simple Node Group"
     Environment = "${var.environment_name}"
     Project     = "weatherbug"
     ManagedBy   = "terraform"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+  launch_template {
+    id      = aws_launch_template.eks_node_template.id
+    version = "$Latest"
+  }
+}
+
+resource "aws_launch_template" "eks_node_template" {
+  name_prefix   = "eks-node-template-"
+  image_id      = data.aws_ami.eks_worker.id
+  instance_type = "t2.micro"
+  key_name = "eks-custom-key"
+  user_data = base64encode(<<EOF
+#!/bin/bash
+/etc/eks/bootstrap.sh ${aws_eks_cluster.main.name} --kubelet-extra-args '--node-labels=node.kubernetes.io/lifecycle=on-demand'
+EOF
+  )
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = 20
+      volume_type = "gp2"
+    }
+  }
+  network_interfaces {
+    associate_public_ip_address = true
+    delete_on_termination       = true
+    security_groups             = [module.vpc.eks_node_sg_id]
+  }
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name        = "EKS Simple Node Group"
+      Environment = "${var.environment_name}"
+      Project     = "weatherbug"
+      ManagedBy   = "terraform"
+    }
+  }
+}
+
+data "aws_ami" "eks_worker" {
+  most_recent = true
+  owners      = ["602401143452"]  
+  filter {
+    name   = "name"
+    values = ["amazon-eks-node-1.29-v*"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
   }
 }
