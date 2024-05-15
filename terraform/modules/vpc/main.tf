@@ -166,5 +166,5 @@ module "vpc" {
   source = "./vpc"
   environment_name = var.environment_name
   public_vpc_id = aws_vpc.public_vpc.id
-depends_on = [aws_vpc.public_vpc]
+  depends_on = [aws_vpc.public_vpc]
 }
