@@ -10,31 +10,6 @@ resource "aws_vpc" "public_vpc" {
 }
 
 
-resource "aws_subnet" "public_subnets" {
-  count             = length(var.public_subnet_cidrs)
-  vpc_id            = aws_vpc.public_vpc.id
-  cidr_block        = var.public_subnet_cidrs[count.index]
-  availability_zone = "${var.region}${var.azs[count.index]}"
-  tags = {
-    Name      = "Public-${var.environment_name}-${var.region}-${var.azs[count.index]}"
-    Project   = "weatherbug"
-    ManagedBy = "terraform"
-  }
-}
-
-
-resource "aws_subnet" "private_subnets" {
-  count             = length(var.private_subnet_cidrs)
-  vpc_id            = aws_vpc.public_vpc.id
-  cidr_block        = var.private_subnet_cidrs[count.index]
-  availability_zone = "${var.region}${var.azs[count.index]}"
-  tags = {
-    Name      = "Private-${var.environment_name}-${var.region}-${var.azs[count.index]}"
-    Project   = "weatherbug"
-    ManagedBy = "terraform"
-  }
-}
-
 
 # This assumes that subnets order is maintained throughout creation.
 resource "aws_eip" "nat_a" {
@@ -162,9 +137,20 @@ resource "aws_route_table_association" "private" {
 }
 
 
-module "vpc" {
-  source = "./vpc"
+module "security-groups" {
+  source = "./security-groups"
   environment_name = var.environment_name
   public_vpc_id = aws_vpc.public_vpc.id
+  depends_on = [aws_vpc.public_vpc]
+}
+
+
+module "subnets" {
+  source = "./subnets"
+  environment_name = var.environment_name
+  public_vpc_id = aws_vpc.public_vpc.id
+  region            = var.region
+  public_subnet_cidrs = var.public_subnet_cidrs
+  private_subnet_cidrs = var.private_subnet_cidrs
   depends_on = [aws_vpc.public_vpc]
 }
