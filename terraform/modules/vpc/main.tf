@@ -163,7 +163,7 @@ resource "aws_route_table_association" "private" {
 
 
 module "vpc" {
-  source = "../../modules/vpc"
+  source = "./vpc"
   environment_name = var.environment_name
   public_vpc_id = aws_vpc.public_vpc.id
 depends_on = [aws_vpc.public_vpc]
