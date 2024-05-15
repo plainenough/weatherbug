@@ -124,16 +124,6 @@ resource "aws_security_group_rule" "eks_control_plane_ingress" {
   description       = "Allow traffic from the worker nodes"
 }
 
-resource "aws_security_group_rule" "eks_control_plane_egress" {
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  security_group_id = aws_security_group.eks_control_plane_sg.id
-  cidr_blocks       = ["0.0.0.0/0"]
-  description       = "Allow all outbound traffic"
-}
-
 
 resource "aws_security_group" "public_sg" {
   name        = "${var.environment_name}-public-sg"
