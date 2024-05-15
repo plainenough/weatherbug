@@ -55,12 +55,12 @@ output "nat_eips" {
 
 
 output "web_traffic_security_group_id" {
-  value       = aws_security_group.external_web_traffic_sg.id
+  value       = module.security-groups.external_web_traffic_sg.id
   description = "The ID of the security group that allows web traffic"
 }
 
 
 output "eks_node_sg_id" {
-  value       = aws_security_group.eks_node_sg.id
+  value       = module.security-groups.eks_node_sg_id
   description = "The ID of the security group that allows web traffic"
 }
