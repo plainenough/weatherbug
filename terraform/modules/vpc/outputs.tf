@@ -57,3 +57,8 @@ output "private_sg_id" {
   value = module.security-groups.private_sg_id
   description = "private security group"
 }
+
+output "eks_control_plane_sg_id" {
+  description = "The ID of the EKS control plane security group"
+  value       = module.security-groups.eks_control_plane_sg_id
+}
