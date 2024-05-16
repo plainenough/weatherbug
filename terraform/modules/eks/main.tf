@@ -88,6 +88,8 @@ resource "aws_eks_node_group" "simple_node_group" {
   node_group_name = "simple-node-group"
   node_role_arn   = aws_iam_role.eks_node_role.arn
   subnet_ids      = module.vpc.private_subnet_ids
+  instance_types = ["t2.micro"]
+  ami_type = "AL2_x86_64"  # Amazon Linux 2
   scaling_config {
     desired_size = 3
     min_size     = 1
@@ -101,43 +103,6 @@ resource "aws_eks_node_group" "simple_node_group" {
   }
   lifecycle {
     create_before_destroy = true
-  }
-  launch_template {
-    id      = aws_launch_template.eks_node_template.id
-    version = "$Latest"
-  }
-}
-
-resource "aws_launch_template" "eks_node_template" {
-  name_prefix   = "eks-node-template-"
-  image_id      = data.aws_ami.eks_worker.id
-  instance_type = "t2.micro"
-  key_name = "eks-custom-key"
-  user_data = base64encode(<<EOF
-#!/bin/bash
-/etc/eks/bootstrap.sh ${aws_eks_cluster.main.name} --kubelet-extra-args '--node-labels=node.kubernetes.io/lifecycle=on-demand'
-EOF
-  )
-  block_device_mappings {
-    device_name = "/dev/xvda"
-    ebs {
-      volume_size = 20
-      volume_type = "gp2"
-    }
-  }
-  network_interfaces {
-    associate_public_ip_address = false
-    delete_on_termination       = true
-    security_groups             = [module.vpc.eks_node_sg_id, module.vpc.private_sg_id]
-  }
-  tag_specifications {
-    resource_type = "instance"
-    tags = {
-      Name        = "EKS Simple Node Group"
-      Environment = "${var.environment_name}"
-      Project     = "weatherbug"
-      ManagedBy   = "terraform"
-    }
   }
 }
 
