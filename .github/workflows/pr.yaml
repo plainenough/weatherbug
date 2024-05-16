@@ -1,0 +1,34 @@
+name: Terraform Validation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate Terraform
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.3.5  # Specify your desired Terraform version
+
+    - name: Validate Terraform configurations
+      shell: bash
+      run: |
+        for dir in `ls -R ./terraform/modules/| grep : |cut -d: -f1`; do
+          if [ -d "$dir" ]; then
+            echo "Validating $dir"
+            terraform -chdir="$dir" init -backend=false
+            terraform -chdir="$dir" validate
+          fi
+        done

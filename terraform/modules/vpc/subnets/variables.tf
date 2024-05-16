@@ -1,7 +1,13 @@
-
 variable "environment_name" {
   description = "Name of the environment"
   type        = string
+}
+
+
+variable "region" {
+  description = "AWS region to deploy to."
+  type        = string
+  default     = "us-east-2"
 }
 
 
@@ -19,13 +25,14 @@ variable "private_subnet_cidrs" {
 }
 
 
-variable "vpc_cidr_block" {
-  type        = string
-  description = "Public Subnet CIDR values"
-  default     = "10.0.0.0/16"
+variable "azs" {
+  type        = list(string)
+  description = "Availability Zones"
+  default     = ["a", "b", "c"]
 }
 
-variable "region" {
-  description = "AWS region to deploy to."
+
+variable "public_vpc_id" {
+  description = "VPC id"
   type        = string
 }
