@@ -15,6 +15,7 @@ resource "aws_eks_node_group" "simple_node_group" {
     Environment = "${var.environment_name}"
     Project     = "weatherbug"
     ManagedBy   = "terraform"
+    "kubernetes.io/cluster/${var.eks_cluster_name}" = "owned"
   }
   depends_on = [
     aws_iam_role.eks_node_role,
@@ -51,6 +52,12 @@ resource "aws_iam_role" "eks_node_role" {
       }
     ]
   })
+}
+
+
+resource "aws_iam_instance_profile" "eks_node_instance_profile" {
+  name = "eks-node-instance-profile"
+  role = aws_iam_role.eks_node_role.name
 }
 
 
@@ -101,6 +108,7 @@ resource "aws_iam_role_policy_attachment" "eks_ssm_policy" {
   role       = aws_iam_role.eks_node_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 }
+
 
 resource "aws_iam_role_policy_attachment" "ecr_push_pull" {
   role       = aws_iam_role.eks_node_role.name
