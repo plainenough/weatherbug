@@ -20,7 +20,11 @@ module "eks" {
   source           = "../../modules/eks"
   environment_name = var.environment_name
   region           = var.region
+  private_subnet_ids = module.vpc.private_subnet_ids
   ecr_repository_arn = module.ecr.ecr_repository_arn
+  eks_node_sg_id     = module.vpc.eks_node_sg_id
+  private_sg_id      = module.vpc.private_sg_id 
+  eks_control_plane_sg_id = module.vpc.eks_control_plane_sg_id
   depends_on = [
     module.ecr,
     module.vpc
