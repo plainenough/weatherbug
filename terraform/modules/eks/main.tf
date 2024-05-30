@@ -1,8 +1,11 @@
 module "node_group" {
   source = "./node_group"
   environment_name = var.environment_name
+  eks_cluster_name = aws_eks_cluster.main.name
   ecr_repository_arn = var.ecr_repository_arn
   oidc_provider_arn = aws_iam_openid_connect_provider.oidc_provider.arn
+  oidc_issuer_url = data.aws_eks_cluster.main.identity[0].oidc[0].issuer
+  private_subnet_ids = var.private_subnet_ids
 }
 
 
@@ -48,7 +51,7 @@ resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
 
 resource "aws_eks_cluster" "main" {
   name     = "${var.region}-eks-${var.environment_name}"
-  role_arn = module.iam.eks_cluster_role_arn
+  role_arn = aws_iam_role.eks_cluster_role.arn
   version  = "1.29"
   vpc_config {
     subnet_ids              = var.private_subnet_ids
@@ -63,8 +66,7 @@ resource "aws_eks_cluster" "main" {
     resources = ["secrets"]
   }
   depends_on = [
-    module.iam.eks_cluster_policy,
-    module.iam.eks_vpc_resource_controller,
+    aws_iam_role.eks_cluster_role,
   ]
   tags = {
     Name        = "${var.region}-eks-${var.environment_name}"
