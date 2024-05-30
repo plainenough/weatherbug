@@ -38,3 +38,9 @@ variable "eks_control_plane_sg_id" {
   description = "The ID of the EKS control plane security group"
   type        = string
 }
+
+
+variable "eks_cluster_name" {
+  description = "The EKS cluster name"
+  type        = string
+}

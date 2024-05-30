@@ -50,7 +50,7 @@ resource "aws_iam_role_policy_attachment" "eks_vpc_resource_controller" {
 
 
 resource "aws_eks_cluster" "main" {
-  name     = "${var.region}-eks-${var.environment_name}"
+  name     = var.eks_cluster_name
   role_arn = aws_iam_role.eks_cluster_role.arn
   version  = "1.29"
   vpc_config {
@@ -69,7 +69,7 @@ resource "aws_eks_cluster" "main" {
     aws_iam_role.eks_cluster_role,
   ]
   tags = {
-    Name        = "${var.region}-eks-${var.environment_name}"
+    Name        = var.eks_cluster_name
     Environment = "${var.environment_name}"
     Project     = "weatherbug"
     ManagedBy   = "terraform"
@@ -92,15 +92,65 @@ resource "aws_iam_openid_connect_provider" "oidc_provider" {
 }
 
 
-resource "aws_eks_addon" "kubeproxy_addon" {
-  cluster_name = aws_eks_cluster.main.name
-  addon_name   = "kube-proxy"
+resource "aws_iam_role" "eks_cni_role" {
+  name = "eks-cni-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+
+resource "aws_iam_role_policy_attachment" "eks_cni_AmazonEKS_CNI_Policy" {
+  role       = aws_iam_role.eks_cni_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
 }
 
 
 resource "aws_eks_addon" "cni_addon" {
   cluster_name = aws_eks_cluster.main.name
   addon_name   = "vpc-cni"
+   service_account_role_arn = aws_iam_role.eks_cni_role.arn
+}
+
+
+resource "aws_iam_role" "eks_kube_proxy_role" {
+  name = "eks-kube-proxy-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+
+resource "aws_iam_role_policy_attachment" "eks_kube_proxy_AmazonEKS_KubeProxyPolicy" {
+  role       = aws_iam_role.eks_kube_proxy_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_KubeProxyPolicy"
+}
+
+
+resource "aws_eks_addon" "kubeproxy_addon" {
+  cluster_name = aws_eks_cluster.main.name
+  addon_name   = "kube-proxy"
+  service_account_role_arn = aws_iam_role.eks_kube_proxy_role.arn
 }
 
 
