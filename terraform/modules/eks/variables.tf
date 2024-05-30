@@ -7,5 +7,10 @@ variable "environment_name" {
 variable "region" {
   description = "AWS region to deploy to."
   type        = string
-  default     = "us-east-2"
+}
+
+
+variable "ecr_repository_arn" {
+  description = "AWS ECR repo arn EKS will be using."
+  type        = string
 }
