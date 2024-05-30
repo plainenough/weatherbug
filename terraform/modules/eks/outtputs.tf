@@ -23,7 +23,7 @@ output "eks_node_group_arn" {
 
 
 output "eks_node_group_id" {
-  value       = module.node_group.simple_node_group_id
+  value       = module.node_group.eks_node_group_id
   description = "The ID of the EKS Node Group"
 }
 
