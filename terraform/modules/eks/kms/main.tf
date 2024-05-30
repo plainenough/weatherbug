@@ -27,6 +27,21 @@ resource "aws_kms_key" "eks_encryption" {
         Principal = {
           Service = "eks.amazonaws.com"
         }
+      },
+      {
+        Sid: "Allow EKS Cluster Role to Use the Key",
+        Effect = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/eks-cluster-role"
+        },
+        Action = [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:GenerateDataKey*",
+          "kms:DescribeKey"
+        ],
+        Resource = "*"
       }
     ]
   })
