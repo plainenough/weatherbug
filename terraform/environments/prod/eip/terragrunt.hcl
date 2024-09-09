@@ -1,5 +1,5 @@
 terraform {
-    source = "../../../modules/eip"
+    source = "${get_repo_root()}modules/eip"
 }
 
 inputs = {

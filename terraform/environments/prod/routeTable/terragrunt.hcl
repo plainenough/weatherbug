@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/routeTable"
+  source = "${get_repo_root()}modules/routeTable"
 }
 
 

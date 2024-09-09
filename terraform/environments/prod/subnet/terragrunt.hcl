@@ -1,5 +1,5 @@
 terraform {
-    source = "../../../modules/subnet"
+    source = "${get_repo_root()}modules/subnet"
 }
 
 dependency "vpc" {

@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/igw"
+  source = "${get_repo_root()}modules/igw"
 }
 
 dependency "vpc" {

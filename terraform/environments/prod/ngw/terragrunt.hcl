@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/ngw"
+  source = "${get_repo_root()}modules/ngw"
 }
 
 dependency "subnet" {

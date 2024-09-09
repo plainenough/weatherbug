@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/eks"
+  source = "${get_repo_root()}modules/eks"
 }
 
 

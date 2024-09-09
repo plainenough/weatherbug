@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/securityGroups"
+  source = "${get_repo_root()}modules/securityGroups"
 }
 
 

@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/kms"
+  source = "${get_repo_root()}modules/kms"
 }
 
 inputs = {
