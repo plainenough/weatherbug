@@ -5,7 +5,7 @@ resource "aws_route_table" "public_route_table" {
     gateway_id = var.public_gateway_id
   }
   route {
-    cidr_block = var.vpc_cidr_block
+    cidr_block = var.vpc_cidr
     gateway_id = "local"
   }
   tags = {
@@ -16,20 +16,20 @@ resource "aws_route_table" "public_route_table" {
 }
 
 resource "aws_route_table_association" "public" {
-  count          = 3
+  count          = length(var.public_subnet_ids)
   subnet_id      = var.public_subnet_ids[count.index]
   route_table_id = aws_route_table.public_route_table.id
 }
 
 resource "aws_route_table" "private" {
-  count  = 3
+  count  = length(var.nat_gateway_ids)
   vpc_id = var.public_vpc_id
   route {
     cidr_block = "0.0.0.0/0"
     nat_gateway_id = var.nat_gateway_ids[count.index]
   }
   route {
-    cidr_block = var.vpc_cidr_block
+    cidr_block = var.vpc_cidr
     gateway_id = "local"
   }
   tags = {
@@ -40,7 +40,7 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route_table_association" "private-subnets" {
-  count          = 3
+  count          = length(var.private_subnet_ids)
   subnet_id      = var.private_subnet_ids[count.index]
   route_table_id = aws_route_table.private[count.index].id  
 }
