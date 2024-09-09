@@ -21,6 +21,7 @@ dependency "ngw" {
 }
 
 inputs = {
+  vpc_cidr = "10.0.0.0/16"
   nat_gateway_ids = dependency.ngw.outputs.nat_gateways
   private_subnet_ids = dependency.subnet.outputs.private_subnet_ids
   public_subnet_ids = dependency.subnet.outputs.public_subnet_ids

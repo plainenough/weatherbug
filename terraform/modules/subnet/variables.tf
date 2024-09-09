@@ -36,9 +36,3 @@ variable "public_vpc_id" {
   description = "VPC id"
   type        = string
 }
-
-
-variable "eks_cluster_name" {
-  description = "The EKS cluster name"
-  type        = string
-}

@@ -3,6 +3,11 @@ variable "public_vpc_id" {
   type        = string
 }
 
+variable "vpc_cidr" {
+  description = "VPC CIDR Block"
+  type        = string
+}
+
 variable "public_gateway_id" {
   description = "public gateway id"
   type = string

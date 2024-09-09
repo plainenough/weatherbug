@@ -1,5 +1,5 @@
 terraform {
-  source = "../../../modules/ecr"
+  source = "../../../modules/kms"
 }
 
 inputs = {
